@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
     initialLocation: '/',
     routes: [
       GoRoute(
-        path: '/',
+        path: '/mainscreen',
         builder: (context, state) => MainScreen(),
       ),
       GoRoute(
@@ -43,10 +43,6 @@ class MyApp extends StatelessWidget {
       GoRoute(
         path: '/',
         builder: (context, state) => const SignPage(),
-      ),
-      GoRoute(
-        path: '/homepage',
-        builder: (context, state) => MainPage(),
       ),
       GoRoute(
         path: '/profile',

@@ -1,15 +1,14 @@
-import 'package:burgan_app/models/user.dart';
 import 'package:burgan_app/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class SignupPage extends StatelessWidget {
-  SignupPage({Key? key}) : super(key: key);
+  SignupPage({super.key});
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
-  final emailController = TextEditingController();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -30,7 +29,6 @@ class SignupPage extends StatelessWidget {
             ),
             TextFormField(
               decoration: const InputDecoration(hintText: 'Email'),
-              controller: emailController,
               validator: (value) =>
                   value!.isEmpty ? 'Please enter a email' : null,
             ),
@@ -57,11 +55,16 @@ class SignupPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                Provider.of<AuthProvider>(context, listen: false).signup(
-                    user: User(
-                        username: usernameController.text,
-                        password: passwordController.text));
-                context.go("/homepage");
+                try {
+                  context.read<AuthProvider>().signup(
+                        email: usernameController.text,
+                        password: passwordController.text,
+                      );
+                } catch (e) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(const SnackBar(content: Text('error')));
+                }
+                context.push('/mainscreen');
               },
               child: const Text("Sign Up"),
             )

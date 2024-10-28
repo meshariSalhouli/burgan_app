@@ -1,12 +1,10 @@
-import 'package:burgan_app/main.dart';
-import 'package:burgan_app/models/user.dart';
 import 'package:burgan_app/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
 class SigninPage extends StatelessWidget {
-  SigninPage({Key? key}) : super(key: key);
+  SigninPage({super.key});
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
   @override
@@ -32,11 +30,16 @@ class SigninPage extends StatelessWidget {
             ),
             ElevatedButton(
               onPressed: () {
-                Provider.of<AuthProvider>(context, listen: false).signin(
-                    user: User(
-                        username: usernameController.text,
-                        password: passwordController.text));
-                context.go("/homepage");
+                try {
+                  context.read<AuthProvider>().signup(
+                        email: usernameController.text,
+                        password: passwordController.text,
+                      );
+                } catch (e) {
+                  ScaffoldMessenger.of(context)
+                      .showSnackBar(const SnackBar(content: Text('error')));
+                }
+                context.push('/mainscreen');
               },
               child: const Text("Sign In"),
             )

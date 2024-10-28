@@ -2,7 +2,6 @@ import 'package:burgan_app/models/transaction.dart';
 import 'package:burgan_app/models/transactiontile.dart';
 import 'package:flutter/material.dart';
 
-import 'profile_page.dart';
 import 'dart:io';
 
 class MainPage extends StatefulWidget {
