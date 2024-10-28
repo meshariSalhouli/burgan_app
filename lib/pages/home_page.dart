@@ -1,30 +1,66 @@
 import 'package:burgan_app/models/transaction.dart';
 import 'package:burgan_app/models/transactiontile.dart';
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart'; // Import GoRouter package
 
-class Homepage extends StatefulWidget {
-  const Homepage({super.key});
+import 'profile_page.dart';
+import 'dart:io';
+
+class MainPage extends StatefulWidget {
+  // final String name;
+  // final String username;
+  // final String phoneNumber;
+  // final String address;
 
   @override
-  _HomepageState createState() => _HomepageState();
+  _MainPageState createState() => _MainPageState();
 }
 
-class _HomepageState extends State<Homepage> {
+class _MainPageState extends State<MainPage> {
   double balance = 0.0; // Initial balance
   List<Transaction> transactions = []; // List to hold transaction history
+  File? _profileImage; // Profile picture state
 
-  void _withdraw(double amount) {
-    if (amount <= 0) {
-      _showSnackBar("Please enter a valid amount");
-      return;
+  // Method to get greeting based on the time of day
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return "Good Morning,";
+    } else if (hour < 17) {
+      return "Good Afternoon,";
+    } else {
+      return "Good Evening,";
     }
+  }
+
+  // Method to open profile page and handle updated profile picture
+  // Future<void> _navigateToProfilePage() async {
+  //   final result = await Navigator.push(
+  //     context,
+  // MaterialPageRoute(
+  // builder: (context) => ProfilePage(
+  //   name: widget.name,
+  //   username: widget.username,
+  //   phoneNumber: widget.phoneNumber,
+  //   address: widget.address,
+  //   profilePicture: _profileImage, // Pass the current profile image
+  // ),
+  // ),
+  // );
+
+  //   if (result != null && result is File) {
+  //     setState(() {
+  //       _profileImage = result; // Update the profile image after changes
+  //     });
+  //   }
+  // }
+
+  // Method to handle Withdraw
+  void _withdraw(double amount) {
     if (balance >= amount) {
       setState(() {
         balance -= amount;
         transactions.insert(
-          0,
+          0, // Insert at the beginning of the list
           Transaction(
               bankName: "You",
               amount: "-${amount.toStringAsFixed(2)} KWD",
@@ -37,15 +73,12 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
+  // Method to handle Deposit
   void _deposit(double amount) {
-    if (amount <= 0) {
-      _showSnackBar("Please enter a valid amount");
-      return;
-    }
     setState(() {
       balance += amount;
       transactions.insert(
-        0,
+        0, // Insert at the beginning of the list
         Transaction(
             bankName: "You",
             amount: "+${amount.toStringAsFixed(2)} KWD",
@@ -55,16 +88,13 @@ class _HomepageState extends State<Homepage> {
     });
   }
 
+  // Method to handle Transfer
   void _transfer(double amount, String iban, String recipientName) {
-    if (amount <= 0) {
-      _showSnackBar("Please enter a valid amount");
-      return;
-    }
     if (balance >= amount) {
       setState(() {
-        balance -= amount;
+        balance -= amount; // Subtracting from your wallet
         transactions.insert(
-          0,
+          0, // Insert at the beginning of the list
           Transaction(
               bankName: "Transfer to $recipientName\nIBAN: $iban",
               amount: "-${amount.toStringAsFixed(2)} KWD",
@@ -77,11 +107,13 @@ class _HomepageState extends State<Homepage> {
     }
   }
 
+  // SnackBar for insufficient funds
   void _showSnackBar(String message) {
     final snackBar = SnackBar(content: Text(message));
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
+  // Dialog to input transaction amounts
   void _showTransactionDialog(String type) {
     TextEditingController amountController = TextEditingController();
     TextEditingController ibanController = TextEditingController();
@@ -93,40 +125,59 @@ class _HomepageState extends State<Homepage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("$type Amount"),
+          title: Text("$type Amount",
+              style: TextStyle(
+                  color:
+                      const Color.fromARGB(255, 68, 138, 255))), // White title
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               TextField(
                 controller: amountController,
                 keyboardType: TextInputType.number,
-                decoration:
-                    const InputDecoration(hintText: "Enter amount in KWD"),
+                decoration: InputDecoration(
+                    hintText: "Enter amount in KWD",
+                    hintStyle: TextStyle(
+                        color: const Color.fromARGB(
+                            255, 68, 138, 255))), // White hint text
               ),
               if (isTransfer) ...[
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 TextField(
                   controller: ibanController,
-                  decoration: const InputDecoration(hintText: "Enter IBAN"),
+                  decoration: InputDecoration(
+                      hintText: "Enter IBAN",
+                      hintStyle: TextStyle(
+                          color: const Color.fromARGB(
+                              255, 68, 138, 255))), // White hint text
                 ),
-                const SizedBox(height: 10),
+                SizedBox(height: 10),
                 TextField(
                   controller: recipientNameController,
-                  decoration:
-                      const InputDecoration(hintText: "Recipient's name"),
+                  decoration: InputDecoration(
+                      hintText: "Recipient's name",
+                      hintStyle: TextStyle(
+                          color: const Color.fromARGB(
+                              255, 0, 118, 202))), // White hint text
                 ),
               ],
             ],
           ),
           actions: [
             TextButton(
-              child: const Text("Cancel"),
+              child: Text("Cancel",
+                  style: TextStyle(
+                      color: const Color.fromARGB(
+                          255, 68, 138, 255))), // White text
               onPressed: () {
                 Navigator.of(context).pop();
               },
             ),
             TextButton(
-              child: const Text("Confirm"),
+              child: Text("Confirm",
+                  style: TextStyle(
+                      color: const Color.fromARGB(
+                          255, 68, 138, 255))), // White text
               onPressed: () {
                 double amount = double.tryParse(amountController.text) ?? 0.0;
                 String iban = ibanController.text;
@@ -146,7 +197,7 @@ class _HomepageState extends State<Homepage> {
                     }
                   }
                 }
-                Provider.of(context).pop();
+                Navigator.of(context).pop();
               },
             ),
           ],
@@ -159,87 +210,147 @@ class _HomepageState extends State<Homepage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Burgan Wallet", style: TextStyle(fontSize: 22)),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.more_vert),
-            onPressed: () {
-              context.go(
-                  '/profile'); // Use GoRouter to navigate to the Profile page
-            },
+        title: Text("Burgan Wallet",
+            style: TextStyle(
+                fontSize: 22,
+                color: const Color.fromARGB(255, 68, 138, 255))), // White title
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            colors: [Colors.blueAccent, Colors.lightBlueAccent],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
-        ],
-      ),
-      body: Column(
-        children: [
-          _buildBalanceSection(),
-          const SizedBox(height: 10),
-          _buildTransactionHistoryHeader(),
-          const Divider(),
-          _buildTransactionList(),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildBalanceSection() {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          Text(
-            "${balance.toStringAsFixed(2)} KWD",
-            style: const TextStyle(fontSize: 36, fontWeight: FontWeight.bold),
-          ),
-          const Text("Balance",
-              style: TextStyle(fontSize: 18, color: Colors.grey)),
-          const SizedBox(height: 8),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              ElevatedButton(
-                onPressed: () => _showTransactionDialog("Withdraw"),
-                child: const Text("Withdraw"),
+        ),
+        child: Column(
+          children: [
+            // User Greeting Section
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Row(
+                children: [
+                  GestureDetector(
+                    // onTap: _navigateToProfilePage, // Profile icon is clickable
+                    child: CircleAvatar(
+                      radius: 30,
+                      backgroundImage: _profileImage != null
+                          ? NetworkImage(_profileImage!.path)
+                          : AssetImage('assets/Images/default_profile.png')
+                              as ImageProvider,
+                    ),
+                  ),
+                  SizedBox(width: 10), // Space between icon and text
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _getGreeting(),
+                        style: TextStyle(
+                            fontSize: 18, color: Colors.white), // White text
+                      ),
+                      // Text(
+                      //   widget.name,
+                      //   style: TextStyle(
+                      //       fontSize: 20,
+                      //       fontWeight: FontWeight.bold,
+                      //       color: Colors.white), // White text
+                      //   overflow: TextOverflow.ellipsis, // To handle long names
+                      // ),
+                    ],
+                  ),
+                ],
               ),
-              ElevatedButton(
-                onPressed: () => _showTransactionDialog("Transfer"),
-                child: const Text("Transfer"),
+            ),
+            // Balance and Portfolio section
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                children: [
+                  Text(
+                    "${balance.toStringAsFixed(2)} KWD",
+                    style: TextStyle(
+                        fontSize: 36,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white), // White text
+                  ),
+                  Container(
+                    padding: EdgeInsets.only(top: 10, bottom: 40),
+                    child: Text("Balance",
+                        style: TextStyle(fontSize: 18, color: Colors.white)),
+                  ), // White text
+                  SizedBox(height: 8),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      ElevatedButton(
+                        onPressed: () {
+                          _showTransactionDialog("Withdraw");
+                        },
+                        child: Text("Withdraw",
+                            style: TextStyle(
+                                color: const Color.fromARGB(
+                                    255, 68, 138, 255))), // White text
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _showTransactionDialog("Transfer");
+                        },
+                        child: Text("Transfer",
+                            style: TextStyle(
+                                color: const Color.fromARGB(
+                                    255, 68, 138, 255))), // White text
+                      ),
+                      ElevatedButton(
+                        onPressed: () {
+                          _showTransactionDialog("Deposit");
+                        },
+                        child: Text("Deposit",
+                            style: TextStyle(
+                                color: const Color.fromARGB(
+                                    255, 68, 138, 255))), // White text
+                      ),
+                    ],
+                  ),
+                ],
               ),
-              ElevatedButton(
-                onPressed: () => _showTransactionDialog("Deposit"),
-                child: const Text("Deposit"),
+            ),
+            SizedBox(height: 10),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16.0),
+              child: Align(
+                alignment: Alignment.centerLeft, // Align the text to the left
+                child: Container(
+                  padding: EdgeInsets.only(bottom: 30, top: 30),
+                  child: Text(
+                    "Transaction History",
+                    style: TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.white), // White text
+                  ),
+                ),
               ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildTransactionHistoryHeader() {
-    return const Padding(
-      padding: EdgeInsets.only(left: 16.0),
-      child: Text(
-        "Transaction History",
-        style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-      ),
-    );
-  }
-
-  Widget _buildTransactionList() {
-    return Expanded(
-      child: ListView.builder(
-        itemCount: transactions.length,
-        itemBuilder: (context, index) {
-          final transaction = transactions[index];
-          TransactionTile(
-            bankName: transaction.bankName,
-            amount: transaction.amount,
-            icon: transaction.icon,
-            transactionType: transaction.transactionType,
-          );
-          return null;
-        },
+            ),
+            SizedBox(height: 10), // Space between text and divider
+            Divider(color: Colors.white), // White divider
+            // Expanded to make the transaction history take the rest of the space
+            Expanded(
+              child: ListView.builder(
+                itemCount: transactions.length,
+                itemBuilder: (context, index) {
+                  final transaction = transactions[index];
+                  return TransactionTile(
+                    bankName: transaction.bankName,
+                    amount: transaction.amount,
+                    icon: transaction.icon,
+                    transactionType: transaction.transactionType,
+                  );
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
