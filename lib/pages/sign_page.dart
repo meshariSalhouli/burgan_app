@@ -76,7 +76,7 @@ class SignPage extends StatelessWidget {
                         child: ElevatedButton.icon(
                           icon: Icon(Icons.login, color: Colors.white),
                           label: const Text(
-                            "Sign In",
+                            "Login",
                             style: TextStyle(fontSize: 22, color: Colors.white),
                           ),
                           style: ElevatedButton.styleFrom(
@@ -87,7 +87,7 @@ class SignPage extends StatelessWidget {
                           ),
                           onPressed: () {
                             context
-                                .go('/signin'); // Use GoRouter for navigation
+                                .push('/login'); // Use GoRouter for navigation
                           },
                         ),
                       ),

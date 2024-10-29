@@ -42,7 +42,7 @@ class AuthProvider extends ChangeNotifier {
   }
 
   Future<void> login({required String email, required String password}) async {
-    user = await signupAPI(email, password);
+    user = await loginApi(email, password);
 
     notifyListeners();
 
