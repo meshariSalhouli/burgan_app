@@ -7,7 +7,6 @@ class TransactionTile extends StatelessWidget {
   final String transactionType;
 
   const TransactionTile({
-    super.key,
     required this.bankName,
     required this.amount,
     required this.icon,
@@ -17,12 +16,23 @@ class TransactionTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
-      leading: Icon(icon, size: 40),
+      leading: Icon(icon, color: Colors.white),
       title: Text(
-        "$transactionType - $bankName",
-        style: const TextStyle(fontSize: 18),
+        bankName,
+        style: TextStyle(color: Colors.white),
       ),
-      trailing: Text(amount, style: const TextStyle(fontSize: 18)),
+      subtitle: Text(
+        "Transaction", // or any additional info
+        style: TextStyle(color: Colors.white70),
+      ),
+      trailing: Text(
+        amount,
+        style: TextStyle(
+          fontSize: 16, // Set your preferred size
+          fontWeight: FontWeight.bold,
+          color: transactionType == "Deposit" ? Colors.green : Colors.red,
+        ),
+      ),
     );
   }
 }

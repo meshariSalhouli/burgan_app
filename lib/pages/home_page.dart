@@ -343,7 +343,8 @@ class _MainPageState extends State<MainPage> {
                     bankName: transaction.bankName,
                     amount: transaction.amount,
                     icon: transaction.icon,
-                    transactionType: transaction.transactionType,
+                    transactionType: transaction
+                        .transactionType, // Pass transaction type here
                   );
                 },
               ),
