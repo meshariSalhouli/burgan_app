@@ -26,7 +26,7 @@ Future<User> loginApi(String email, String password) async {
 //   var response = await dio.post(path, data: {
 //     "email": email,
 //     "password": password,
-//   });
+//   }); 
 
 //   return User.fromjson(response.data['data']);
 // }
