@@ -48,6 +48,13 @@ class MyApp extends StatelessWidget {
         path: '/profile',
         builder: (context, state) => const ProfilePage(),
       ),
+      GoRoute(
+        path: '/branchDetail',
+        builder: (context, state) {
+          final branch = state.extra as Branch;
+          return BranchDetailPage(branch: branch);
+        },
+      ),
     ],
   );
 
@@ -71,7 +78,7 @@ class _MainScreenState extends State<MainScreen> {
   final List<Widget> _pages = [
     MainPage(),
     OffersPage(),
-    BranchesPage(),
+    ListScreen(),
     SettingsPage(),
   ];
 
