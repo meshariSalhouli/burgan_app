@@ -1,10 +1,10 @@
 import 'package:burgan_app/pages/OffersPage.dart';
 import 'package:burgan_app/pages/branches_page.dart';
 import 'package:burgan_app/pages/home_page.dart';
+import 'package:burgan_app/pages/login_page.dart';
 import 'package:burgan_app/pages/profile_page.dart';
 import 'package:burgan_app/pages/settings_page.dart';
 import 'package:burgan_app/pages/sign_page.dart';
-import 'package:burgan_app/pages/signin_page.dart';
 import 'package:burgan_app/pages/signup_page.dart';
 import 'package:burgan_app/providers/auth_provider.dart';
 import 'package:burgan_app/providers/bank_provider.dart';
@@ -37,12 +37,12 @@ class MyApp extends StatelessWidget {
         builder: (context, state) => SignupPage(),
       ),
       GoRoute(
-        path: '/signin',
-        builder: (context, state) => SigninPage(),
+        path: '/login',
+        builder: (context, state) => LoginPage(),
       ),
       GoRoute(
         path: '/',
-        builder: (context, state) => const SignPage(),
+        builder: (context, state) => SignPage(),
       ),
       GoRoute(
         path: '/profile',

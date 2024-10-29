@@ -4,24 +4,23 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 
-class SignupPage extends StatelessWidget {
-  SignupPage({super.key});
+class LoginPage extends StatelessWidget {
+  LoginPage({super.key});
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
-  final confirmPasswordController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Sign up"),
+        title: const Text("login"),
       ),
       resizeToAvoidBottomInset: false,
       body: Padding(
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-            const Text("Sign Up"),
+            const Text("login "),
             TextFormField(
               decoration: const InputDecoration(hintText: 'Email'),
               controller: usernameController,
@@ -39,7 +38,7 @@ class SignupPage extends StatelessWidget {
               onPressed: () async {
                 try {
                   // wait for authentication
-                  await context.read<AuthProvider>().signup(
+                  await context.read<AuthProvider>().login(
                       email: usernameController.text,
                       password: passwordController.text);
 
@@ -55,7 +54,7 @@ class SignupPage extends StatelessWidget {
                           e.response!.data['message'] ?? "Unexpected error")));
                 }
               },
-              child: const Text("Sign Up"),
+              child: const Text("login"),
             )
           ],
         ),

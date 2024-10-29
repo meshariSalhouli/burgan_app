@@ -1,24 +1,32 @@
 import 'package:burgan_app/models/user.dart';
 import 'package:burgan_app/services/client.dart';
-import 'package:dio/dio.dart';
 
-class AuthServices {
-  Future<User> signup({
-    required String email,
-    required String password,
-  }) async {
-    Response response = await Client.dio.post('/signup', data: {
-      "email": email,
-      "password": password,
-    });
-    if (response.statusCode != 200) {
-      throw response.data is Map
-          ? response.data['message']
-          : "Unexpected server error";
-    }
-    var user = User.fromjson(response.data['data']);
-    print(response.statusCode);
+// Future<User> signupAPI(String email, String password) async =>
+//     _authenticate("/signup", email, password);
 
-    return user;
-  }
+Future<User> signupAPI(String email, String password) async {
+  var response = await dio.post("/signup", data: {
+    "email": email,
+    "password": password,
+  });
+
+  return User.fromjson(response.data['data']);
 }
+
+Future<User> loginApi(String email, String password) async {
+  var response = await dio.post("/login", data: {
+    "email": email,
+    "password": password,
+  });
+
+  return User.fromjson(response.data['data']);
+}
+
+// Future<User> _authenticate(String path, String email, String password) async {
+//   var response = await dio.post(path, data: {
+//     "email": email,
+//     "password": password,
+//   });
+
+//   return User.fromjson(response.data['data']);
+// }
