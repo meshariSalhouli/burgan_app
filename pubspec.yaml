@@ -19,6 +19,7 @@ dependencies:
   url_launcher: ^6.0.20
   geolocator: ^9.0.2
   cupertino_icons: ^1.0.8
+  animated_number: ^1.0.2
 
 dev_dependencies:
   flutter_test:

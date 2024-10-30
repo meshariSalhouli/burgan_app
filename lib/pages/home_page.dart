@@ -1,3 +1,4 @@
+import 'package:animated_number/animated_number.dart';
 import 'package:burgan_app/models/transaction.dart';
 import 'package:burgan_app/models/transactiontile.dart';
 import 'package:flutter/material.dart';
@@ -264,56 +265,91 @@ class _MainPageState extends State<MainPage> {
             // Balance and Portfolio section
             Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
+              child: SizedBox(
+                width: 360,
+                height: 226,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: <Widget>[
+                    Image.asset('assets/images/debitcard.png'),
+                    Positioned(
+                      left: 50,
+                      bottom: 80,
+                      child: Container(
+                        child: Text("1234 1234 1234 1234",
+                            style:
+                                TextStyle(fontSize: 18, color: Colors.white)),
+                      ),
+                    ),
+                    Positioned(
+                      left: 155,
+                      bottom: 45,
+                      child: Container(
+                        child: Text("10/27",
+                            style:
+                                TextStyle(fontSize: 18, color: Colors.white)),
+                      ),
+                    ),
+                    Positioned(
+                      left: 50,
+                      bottom: 20,
+                      child: Container(
+                        child: Text("MESHARI S ALHOULI",
+                            style:
+                                TextStyle(fontSize: 18, color: Colors.white)),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+            AnimatedNumber(
+              startValue: 0,
+              endValue: 2000,
+              duration: Duration(seconds: 3),
+              isFloatingPoint: false,
+              style: TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Container(
+              child: Text("Balance",
+                  style: TextStyle(fontSize: 18, color: Colors.white)),
+            ),
+            Container(
+              padding: EdgeInsets.only(top: 10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Text(
-                    "${balance.toStringAsFixed(2)} KWD",
-                    style: TextStyle(
-                        fontSize: 36,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white), // White text
+                  ElevatedButton(
+                    onPressed: () {
+                      _showTransactionDialog("Withdraw");
+                    },
+                    child: Text("Withdraw",
+                        style: TextStyle(
+                            color: const Color.fromARGB(
+                                255, 68, 138, 255))), // White text
                   ),
-                  Container(
-                    padding: EdgeInsets.only(top: 10, bottom: 40),
-                    child: Text("Balance",
-                        style: TextStyle(fontSize: 18, color: Colors.white)),
-                  ), // White text
-                  SizedBox(height: 8),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      ElevatedButton(
-                        onPressed: () {
-                          _showTransactionDialog("Withdraw");
-                        },
-                        child: Text("Withdraw",
-                            style: TextStyle(
-                                color: const Color.fromARGB(
-                                    255, 68, 138, 255))), // White text
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          _showTransactionDialog("Transfer");
-                        },
-                        child: Text("Transfer",
-                            style: TextStyle(
-                                color: const Color.fromARGB(
-                                    255, 68, 138, 255))), // White text
-                      ),
-                      ElevatedButton(
-                        onPressed: () {
-                          _showTransactionDialog("Deposit");
-                        },
-                        child: Text("Deposit",
-                            style: TextStyle(
-                                color: const Color.fromARGB(
-                                    255, 68, 138, 255))), // White text
-                      ),
-                    ],
+                  ElevatedButton(
+                    onPressed: () {
+                      _showTransactionDialog("Transfer");
+                    },
+                    child: Text("Transfer",
+                        style: TextStyle(
+                            color: const Color.fromARGB(
+                                255, 68, 138, 255))), // White text
+                  ),
+                  ElevatedButton(
+                    onPressed: () {
+                      _showTransactionDialog("Deposit");
+                    },
+                    child: Text("Deposit",
+                        style: TextStyle(
+                            color: const Color.fromARGB(
+                                255, 68, 138, 255))), // White text
                   ),
                 ],
               ),
             ),
+
             SizedBox(height: 10),
             Padding(
               padding: const EdgeInsets.symmetric(horizontal: 16.0),
