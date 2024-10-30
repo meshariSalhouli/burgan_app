@@ -11,7 +11,8 @@ dependencies:
   dio: ^5.7.0
   flutter:
     sdk: flutter
-  go_router: ^14.3.0
+  flutter_localizations: # Localization support
+    sdk: flutter
   json_serializable: ^6.8.0
   jwt_decode: ^0.3.1
   provider: ^6.1.2
@@ -19,6 +20,9 @@ dependencies:
   url_launcher: ^6.0.20
   geolocator: ^9.0.2
   cupertino_icons: ^1.0.8
+  qr_flutter: ^4.0.0 # For generating QR codes
+  qr_code_scanner: ^0.6.1 # For scanning QR codes
+  go_router: ^14.3.0
 
 dev_dependencies:
   flutter_test:

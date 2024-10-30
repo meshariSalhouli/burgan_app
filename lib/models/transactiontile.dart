@@ -12,7 +12,6 @@ class TransactionTile extends StatelessWidget {
     required this.icon,
     required this.transactionType,
   });
-
   @override
   Widget build(BuildContext context) {
     return ListTile(
