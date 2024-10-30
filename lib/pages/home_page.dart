@@ -327,7 +327,7 @@ class _MainPageState extends State<MainPage> {
                     onPressed: () {
                       _showTransactionDialog("Withdraw");
                     },
-                    child: Text("Withdraw",
+                    child: Text("Withdraw".tr,
                         style: TextStyle(
                             color: const Color.fromARGB(
                                 255, 68, 138, 255))), // White text
@@ -336,7 +336,7 @@ class _MainPageState extends State<MainPage> {
                     onPressed: () {
                       _showTransactionDialog("Transfer");
                     },
-                    child: Text("Transfer",
+                    child: Text("Transfer".tr,
                         style: TextStyle(
                             color: const Color.fromARGB(
                                 255, 68, 138, 255))), // White text
@@ -345,7 +345,7 @@ class _MainPageState extends State<MainPage> {
                     onPressed: () {
                       _showTransactionDialog("Deposit");
                     },
-                    child: Text("Deposit",
+                    child: Text("Deposit".tr,
                         style: TextStyle(
                             color: const Color.fromARGB(
                                 255, 68, 138, 255))), // White text
