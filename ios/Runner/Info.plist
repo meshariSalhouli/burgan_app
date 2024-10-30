@@ -55,9 +55,13 @@
         <string>UIInterfaceOrientationLandscapeRight</string>
     </array>
     
-    <!-- Add the camera usage -->
+    <!-- QR scanning -->
     <key>NSCameraUsageDescription</key>
     <string>We need camera access to scan QR codes.</string>
+
+    <!-- Face ID -->
+    <key>NSFaceIDUsageDescription</key>
+    <string>This app requires Face ID to authenticate</string>
 
 </dict>
 </plist>

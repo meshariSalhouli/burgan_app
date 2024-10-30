@@ -3,11 +3,33 @@ import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
+import 'package:local_auth/local_auth.dart';
 
 class LoginPage extends StatelessWidget {
   LoginPage({super.key});
   final usernameController = TextEditingController();
   final passwordController = TextEditingController();
+  final LocalAuthentication auth = LocalAuthentication();
+  Future<void> _authenticate(BuildContext context) async {
+    try {
+      final bool didAuthenticate = await auth.authenticate(
+        localizedReason: 'Please authenticate to autofill your credentials',
+        options: const AuthenticationOptions(biometricOnly: true),
+      );
+
+      if (didAuthenticate) {
+        // Autofill username and password upon successful authentication
+        usernameController.text =
+            'yourUsername'; // Replace with actual username
+        passwordController.text =
+            'yourPassword'; // Replace with actual password
+      }
+    } on Exception catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Authentication failed: $e')),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -55,7 +77,12 @@ class LoginPage extends StatelessWidget {
                 }
               },
               child: const Text("login"),
-            )
+            ),
+            const SizedBox(height: 20), // Add some space
+            ElevatedButton(
+              onPressed: () => _authenticate(context), // Trigger Face ID
+              child: const Text("Login with Face ID"),
+            ),
           ],
         ),
       ),
