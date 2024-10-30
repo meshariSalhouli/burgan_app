@@ -456,32 +456,32 @@ class _MainPageState extends State<MainPage> {
                       ),
 
                       SizedBox(height: 10),
-                      Padding(
-                        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                        child: Align(
-                          alignment: Alignment.centerLeft,
-                          child: Container(
-                            padding: EdgeInsets.only(bottom: 30, top: 30),
-                            child: Text(
-                              'Transaction History'.tr,
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white),
-                            ),
-                          ),
-                        ),
-                      ),
-                      Container(
-                        padding: EdgeInsets.all(5),
-                        child: Text(
-                          'Coming Soon'.tr,
-                          style: TextStyle(
-                              fontSize: 15,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.white),
-                        ),
-                      ),
+                      // Padding(
+                      //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      //   child: Align(
+                      //     alignment: Alignment.centerLeft,
+                      //     child: Container(
+                      //       padding: EdgeInsets.only(bottom: 30, top: 30),
+                      //       child: Text(
+                      //         'Transaction History'.tr,
+                      //         style: TextStyle(
+                      //             fontSize: 20,
+                      //             fontWeight: FontWeight.bold,
+                      //             color: Colors.white),
+                      //       ),
+                      //     ),
+                      //   ),
+                      // ),
+                      // Container(
+                      //   padding: EdgeInsets.all(5),
+                      //   child: Text(
+                      //     'Coming Soon'.tr,
+                      //     style: TextStyle(
+                      //         fontSize: 15,
+                      //         fontWeight: FontWeight.bold,
+                      //         color: Colors.white),
+                      //   ),
+                      // ),
                       // SizedBox(height: 10),
                       // Divider(color: Colors.white),
                       // Expanded(
