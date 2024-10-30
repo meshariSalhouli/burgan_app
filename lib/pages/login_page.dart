@@ -5,16 +5,33 @@ import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:local_auth/local_auth.dart';
 
-class LoginPage extends StatelessWidget {
+class LoginPage extends StatefulWidget {
   LoginPage({super.key});
+
+  @override
+  State<LoginPage> createState() => _LoginPageState();
+}
+
+class _LoginPageState extends State<LoginPage> {
   final usernameController = TextEditingController();
+
   final passwordController = TextEditingController();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    usernameController.text = context.read<AuthProvider>().user?.username ?? "";
+  }
+
   final LocalAuthentication auth = LocalAuthentication();
+
   Future<void> _authenticate(BuildContext context) async {
     try {
       final bool didAuthenticate = await auth.authenticate(
         localizedReason: 'Please authenticate to autofill your credentials',
-        options: const AuthenticationOptions(biometricOnly: true),
+        options: const AuthenticationOptions(biometricOnly: false),
       );
 
       if (!didAuthenticate) return;

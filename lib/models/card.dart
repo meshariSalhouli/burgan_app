@@ -2,8 +2,7 @@ class BankCard {
   int id;
   String name;
   int userId;
-  int number;
-  int balance;
+  String number;
   DateTime updatedAt;
   DateTime createdAt;
   DateTime expiryDate;
@@ -43,18 +42,16 @@ class BankCard {
       required this.number,
       required this.updatedAt,
       required this.createdAt,
-      this.balance = 0,
       required this.expiryDate,
       required this.accountId});
 
   BankCard.fromjson(dynamic json)
       : id = json['id'],
-        name = json["full_name"],
+        name = json["full_name"] ?? "",
         userId = json["user_id"],
         number = json["number"],
         updatedAt = DateTime.parse(json["updated_at"]),
         createdAt = DateTime.parse(json["created_at"]),
-        balance = json["balance"],
         expiryDate = DateTime.parse(json["expiry_date"]),
         accountId = json["account_id"];
 }

@@ -30,7 +30,6 @@ void main() async {
       providers: [
         ChangeNotifierProvider(create: (_) => authProvider),
         ChangeNotifierProvider(create: (_) => BankCardProvider()),
-        ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => Accountprovider()),
         ChangeNotifierProvider(create: (_) => languageProvider),
       ],

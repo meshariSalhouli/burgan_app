@@ -54,6 +54,8 @@ class AuthProvider extends ChangeNotifier {
 
     notifyListeners();
 
+    // dio.options.headers[HttpHeaders.authorizationHeader] =
+    //     "Bearer ${user!.token}";
     dio.options.headers[HttpHeaders.authorizationHeader] =
         "Bearer ${user!.token}";
 
@@ -104,6 +106,13 @@ class AuthProvider extends ChangeNotifier {
       }
     }
   }
+
+  void loogyui() async {
+    var prefs = await SharedPreferences.getInstance();
+    await prefs.clear();
+    user = null;
+    dio.options.headers.remove(HttpHeaders.authorizationHeader);
+  }
 }
 
   // Future<void> loadUser() async {
@@ -122,4 +131,6 @@ class AuthProvider extends ChangeNotifier {
   //   user = User(token: token, username: username);
   //   notifyListeners();
   // }
+
+
 
