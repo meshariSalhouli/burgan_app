@@ -17,13 +17,9 @@ class LoginPage extends StatelessWidget {
         options: const AuthenticationOptions(biometricOnly: true),
       );
 
-      if (didAuthenticate) {
-        // Autofill username and password upon successful authentication
-        usernameController.text =
-            'yourUsername'; // Replace with actual username
-        passwordController.text =
-            'yourPassword'; // Replace with actual password
-      }
+      if (!didAuthenticate) return;
+      await context.read<AuthProvider>().loginWithStoredCredentials();
+      context.go('/mainscreen');
     } on Exception catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Authentication failed: $e')),
@@ -79,10 +75,11 @@ class LoginPage extends StatelessWidget {
               child: const Text("login"),
             ),
             const SizedBox(height: 20), // Add some space
-            ElevatedButton(
-              onPressed: () => _authenticate(context), // Trigger Face ID
-              child: const Text("Login with Face ID"),
-            ),
+            if (context.read<AuthProvider>().isUserLoggedInBefore)
+              ElevatedButton(
+                onPressed: () => _authenticate(context), // Trigger Face ID
+                child: const Text("Login with Face ID"),
+              ),
           ],
         ),
       ),

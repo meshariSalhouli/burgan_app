@@ -1,15 +1,21 @@
 import 'dart:io';
-
 import 'package:burgan_app/services/auth_services.dart';
 import 'package:burgan_app/services/client.dart';
 import 'package:flutter/material.dart';
+import 'package:local_auth/local_auth.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 import '../models/user.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider extends ChangeNotifier {
   AuthProvider() {}
   User? user;
+  bool _isUserLoggedInBefore = false; // if logged in previously
+
+  bool get isUserLoggedInBefore => _isUserLoggedInBefore;
+
+  // Local authentication instance
+  final LocalAuthentication _localAuth = LocalAuthentication();
 
   Future<void> signup({required String email, required String password}) async {
     user = await signupAPI(email, password);
@@ -22,6 +28,7 @@ class AuthProvider extends ChangeNotifier {
     var prefs = await SharedPreferences.getInstance();
     prefs.setString("username", user!.username);
     prefs.setString("token", user!.token);
+    _isUserLoggedInBefore = true; // Update login state after successful signup
   }
 
   Future<void> loadPreviousUser() async {
@@ -38,6 +45,8 @@ class AuthProvider extends ChangeNotifier {
     dio.options.headers[HttpHeaders.authorizationHeader] = "Bearer $token";
 
     user = User(token: token, username: username);
+    _isUserLoggedInBefore = true; // User has previously logged in
+
     notifyListeners();
   }
 
@@ -52,22 +61,66 @@ class AuthProvider extends ChangeNotifier {
     var prefs = await SharedPreferences.getInstance();
     prefs.setString("username", user!.username);
     prefs.setString("token", user!.token);
+    _isUserLoggedInBefore = true; // Update login state after successful login
   }
 
-  Future<void> loadUser() async {
+  // Method for Face ID authentication
+  Future<bool> authenticateWithFaceID() async {
+    bool isAuthenticated = false;
+    try {
+      isAuthenticated = await _localAuth.authenticate(
+        localizedReason: 'Please authenticate to proceed',
+        options: const AuthenticationOptions(biometricOnly: true),
+      );
+    } catch (e) {
+      print("Authentication error: $e");
+    }
+    return isAuthenticated;
+  }
+
+  // Method to log in using the previously stored token if biometric authentication is valid
+  Future<void> loginWithStoredCredentials() async {
     var prefs = await SharedPreferences.getInstance();
     var username = prefs.getString("username");
     var token = prefs.getString("token");
 
-    if (username == null || token == null) {
-      prefs.remove("username");
-      prefs.remove("token");
-      return;
+    if (username != null && token != null) {
+      dio.options.headers[HttpHeaders.authorizationHeader] = "Bearer $token";
+      user = User(token: token, username: username);
+      notifyListeners();
+    } else {
+      // If no previous credentials, prompt regular login
+      print("No stored credentials found.");
     }
+  }
 
-    dio.options.headers[HttpHeaders.authorizationHeader] = "Bearer $token";
-
-    user = User(token: token, username: username);
-    notifyListeners();
+  // Method for Face ID button to trigger login if user has logged in previously
+  Future<void> tryFaceIDLogin() async {
+    if (_isUserLoggedInBefore) {
+      bool isAuthenticated = await authenticateWithFaceID();
+      if (isAuthenticated) {
+        await loginWithStoredCredentials();
+      } else {
+        print("Face ID authentication failed.");
+      }
+    }
   }
 }
+
+  // Future<void> loadUser() async {
+  //   var prefs = await SharedPreferences.getInstance();
+  //   var username = prefs.getString("username");
+  //   var token = prefs.getString("token");
+
+  //   if (username == null || token == null) {
+  //     prefs.remove("username");
+  //     prefs.remove("token");
+  //     return;
+  //   }
+
+  //   dio.options.headers[HttpHeaders.authorizationHeader] = "Bearer $token";
+
+  //   user = User(token: token, username: username);
+  //   notifyListeners();
+  // }
+
