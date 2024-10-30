@@ -17,6 +17,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import 'translations.dart';
 
 void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
   final languageProvider = LanguageProvider();
   final authProvider = AuthProvider();
 
