@@ -2,7 +2,7 @@ class Account {
   int id;
   String name;
   int userId;
-  int number;
+  String number;
   int balance;
   DateTime updatedAt;
   DateTime createdAt;
@@ -24,5 +24,8 @@ class Account {
         number = json["number"],
         updatedAt = DateTime.parse(json["updated_at"]),
         createdAt = DateTime.parse(json["created_at"]),
-        balance = json["balance"];
+        balance = json["balance"] ?? 0;
+
+  String toString() =>
+      "id: ${id.toString().padRight(4)}  number: ${number.toString().padRight(10)}  name: ${name.toString().padRight(10)} balance: $balance";
 }

@@ -1,8 +1,13 @@
 import 'package:animated_number/animated_number.dart';
+import 'package:burgan_app/models/card.dart';
 import 'package:burgan_app/models/transaction.dart';
 import 'package:burgan_app/models/transactiontile.dart';
+import 'package:burgan_app/providers/accounts_provider.dart';
+import 'package:burgan_app/providers/cards_provider.dart';
 import 'package:burgan_app/providers/language_provider.dart';
+import 'package:burgan_app/services/account_services.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'dart:io';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'dart:convert'; // for decoding JSON from QR data
@@ -221,175 +226,213 @@ class _MainPageState extends State<MainPage> {
     super.dispose();
   }
 
+  //
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext _c) {
     return Scaffold(
       appBar: AppBar(
         title: Text("Burgan Wallet",
             style: TextStyle(
                 fontSize: 22, color: const Color.fromARGB(255, 68, 138, 255))),
+        actions: [
+          IconButton(
+              onPressed: () async {
+                var account = await AccountServices.list();
+                for (var a in account) {
+                  print(a);
+                }
+
+                var accountto =
+                    await AccountServices.transfer(7, 100, "1009358916");
+                print(accountto);
+              },
+              icon: Icon(Icons.import_contacts))
+        ],
       ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.blueAccent, Colors.lightBlueAccent],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-          ),
-        ),
-        child: Column(
-          children: [
-            // User Greeting Section
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Row(
-                children: [
-                  GestureDetector(
-                    child: CircleAvatar(
-                      radius: 30,
-                      backgroundImage: _profileImage != null
-                          ? NetworkImage(_profileImage!.path)
-                          : AssetImage('assets/Images/default_profile.png')
-                              as ImageProvider,
-                    ),
+      body: FutureBuilder(
+          future: Future.wait([
+            _c.read<Accountprovider>().get(),
+            _c.read<BankCardProvider>().get(),
+          ]),
+          builder: (context, sp) {
+            if (sp.connectionState == ConnectionState.waiting) {
+              // DO BETTER LOADING
+              return CircularProgressIndicator();
+            }
+
+            return Builder(builder: (context) {
+              var cards = context.read<BankCardProvider>().cards;
+              BankCard? myCard = context.read<BankCardProvider>().cards.isEmpty
+                  ? null
+                  : cards.first;
+
+              return Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.blueAccent, Colors.lightBlueAccent],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  SizedBox(width: 10),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        _getGreeting(),
-                        style: TextStyle(fontSize: 18, color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            // Balance and Portfolio section
-            Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: SizedBox(
-                width: 360,
-                height: 226,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: <Widget>[
-                    Image.asset('assets/images/debitcard.png'),
-                    Positioned(
-                      left: 50,
-                      bottom: 80,
-                      child: Container(
-                        child: Text("1234 1234 1234 1234",
-                            style:
-                                TextStyle(fontSize: 18, color: Colors.white)),
-                      ),
-                    ),
-                    Positioned(
-                      left: 155,
-                      bottom: 45,
-                      child: Container(
-                        child: Text("10/27",
-                            style:
-                                TextStyle(fontSize: 18, color: Colors.white)),
+                ),
+                child: Column(
+                  children: [
+                    // User Greeting Section
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundImage: _profileImage != null
+                                  ? NetworkImage(_profileImage!.path)
+                                  : AssetImage('assets/images/download.png')
+                                      as ImageProvider,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _getGreeting(),
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.white),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
-                    Positioned(
-                      left: 50,
-                      bottom: 20,
-                      child: Container(
-                        child: Text("MESHARI S ALHOULI",
-                            style:
-                                TextStyle(fontSize: 18, color: Colors.white)),
+                    // Balance and Portfolio section
+
+                    if (myCard != null)
+                      Padding(
+                        padding: const EdgeInsets.all(16.0),
+                        child: SizedBox(
+                          width: 360,
+                          height: 226,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: <Widget>[
+                              Image.asset('assets/images/debitcard.png'),
+                              Positioned(
+                                left: 50,
+                                bottom: 80,
+                                child: Container(
+                                  child: Text(myCard.number.toString(),
+                                      style: TextStyle(
+                                          fontSize: 18, color: Colors.white)),
+                                ),
+                              ),
+                              Positioned(
+                                left: 155,
+                                bottom: 45,
+                                child: Container(
+                                  child: Text(
+                                      "${myCard.expiryDate.month}/${myCard.expiryDate.year}",
+                                      style: TextStyle(
+                                          fontSize: 18, color: Colors.white)),
+                                ),
+                              ),
+                              Positioned(
+                                left: 50,
+                                bottom: 20,
+                                child: Container(
+                                  child: Text(myCard.name,
+                                      style: TextStyle(
+                                          fontSize: 18, color: Colors.white)),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    const AnimatedNumber(
+                      startValue: 0,
+                      endValue: 2000,
+                      duration: Duration(seconds: 3),
+                      isFloatingPoint: false,
+                      style: TextStyle(fontWeight: FontWeight.bold),
+                    ),
+                    Container(
+                      child: Text("balance".tr,
+                          style: TextStyle(fontSize: 18, color: Colors.white)),
+                    ),
+                    Container(
+                      padding: EdgeInsets.only(top: 10),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
+                          ElevatedButton(
+                            onPressed: () {
+                              _showTransactionDialog("Withdraw");
+                            },
+                            child: Text("Withdraw".tr,
+                                style: TextStyle(
+                                    color: const Color.fromARGB(
+                                        255, 68, 138, 255))), // White text
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              _showTransactionDialog("Transfer");
+                            },
+                            child: Text("Transfer".tr,
+                                style: TextStyle(
+                                    color: const Color.fromARGB(
+                                        255, 68, 138, 255))), // White text
+                          ),
+                          ElevatedButton(
+                            onPressed: () {
+                              _showTransactionDialog("Deposit");
+                            },
+                            child: Text("Deposit".tr,
+                                style: TextStyle(
+                                    color: const Color.fromARGB(
+                                        255, 68, 138, 255))), // White text
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 10),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                      child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Container(
+                          padding: EdgeInsets.only(bottom: 30, top: 30),
+                          child: Text(
+                            'Transaction History'.tr,
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.white),
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: 10),
+                    Divider(color: Colors.white),
+                    Expanded(
+                      child: ListView.builder(
+                        itemCount: transactions.length,
+                        itemBuilder: (context, index) {
+                          final transaction = transactions[index];
+                          return TransactionTile(
+                            bankName: transaction.bankName,
+                            amount: transaction.amount,
+                            icon: transaction.icon,
+                            transactionType: transaction.transactionType,
+                          );
+                        },
                       ),
                     ),
                   ],
                 ),
-              ),
-            ),
-            AnimatedNumber(
-              startValue: 0,
-              endValue: 2000,
-              duration: Duration(seconds: 3),
-              isFloatingPoint: false,
-              style: TextStyle(fontWeight: FontWeight.bold),
-            ),
-            Container(
-              child: Text("balance".tr,
-                  style: TextStyle(fontSize: 18, color: Colors.white)),
-            ),
-            Container(
-              padding: EdgeInsets.only(top: 10),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  ElevatedButton(
-                    onPressed: () {
-                      _showTransactionDialog("Withdraw");
-                    },
-                    child: Text("Withdraw".tr,
-                        style: TextStyle(
-                            color: const Color.fromARGB(
-                                255, 68, 138, 255))), // White text
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _showTransactionDialog("Transfer");
-                    },
-                    child: Text("Transfer".tr,
-                        style: TextStyle(
-                            color: const Color.fromARGB(
-                                255, 68, 138, 255))), // White text
-                  ),
-                  ElevatedButton(
-                    onPressed: () {
-                      _showTransactionDialog("Deposit");
-                    },
-                    child: Text("Deposit".tr,
-                        style: TextStyle(
-                            color: const Color.fromARGB(
-                                255, 68, 138, 255))), // White text
-                  ),
-                ],
-              ),
-            ),
-
-            SizedBox(height: 10),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Align(
-                alignment: Alignment.centerLeft,
-                child: Container(
-                  padding: EdgeInsets.only(bottom: 30, top: 30),
-                  child: Text(
-                    'Transaction History'.tr,
-                    style: TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white),
-                  ),
-                ),
-              ),
-            ),
-            SizedBox(height: 10),
-            Divider(color: Colors.white),
-            Expanded(
-              child: ListView.builder(
-                itemCount: transactions.length,
-                itemBuilder: (context, index) {
-                  final transaction = transactions[index];
-                  return TransactionTile(
-                    bankName: transaction.bankName,
-                    amount: transaction.amount,
-                    icon: transaction.icon,
-                    transactionType: transaction.transactionType,
-                  );
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
+              );
+            });
+          }),
     );
   }
 }

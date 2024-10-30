@@ -1,3 +1,6 @@
+import 'package:burgan_app/pages/offersPage.dart';
+import 'package:burgan_app/providers/accounts_provider.dart';
+import 'package:burgan_app/providers/cards_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
@@ -5,16 +8,12 @@ import 'package:go_router/go_router.dart';
 import 'package:burgan_app/pages/branches_page.dart';
 import 'package:burgan_app/pages/home_page.dart';
 import 'package:burgan_app/pages/login_page.dart';
-import 'package:burgan_app/pages/offersPage.dart';
 import 'package:burgan_app/pages/profile_page.dart';
 import 'package:burgan_app/pages/settings_page.dart';
 import 'package:burgan_app/pages/sign_page.dart';
 import 'package:burgan_app/pages/signup_page.dart';
 import 'package:burgan_app/providers/auth_provider.dart';
-import 'package:burgan_app/providers/bank_provider.dart';
 import 'package:burgan_app/providers/language_provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'translations.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -29,8 +28,10 @@ void main() async {
   runApp(
     MultiProvider(
       providers: [
-        ChangeNotifierProvider(create: (_) => Bankprovider()),
         ChangeNotifierProvider(create: (_) => authProvider),
+        ChangeNotifierProvider(create: (_) => BankCardProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => Accountprovider()),
         ChangeNotifierProvider(create: (_) => languageProvider),
       ],
       child: MyApp(),

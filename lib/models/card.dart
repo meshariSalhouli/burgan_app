@@ -1,6 +1,4 @@
-import 'package:flutter/material.dart';
-
-class Cards {
+class BankCard {
   int id;
   String name;
   int userId;
@@ -11,7 +9,34 @@ class Cards {
   DateTime expiryDate;
   int accountId;
 
-  Cards(
+  String get formattedNumber => magicCode().fold("", (e, sum) => sum + e);
+
+  Iterable<String> magicCode() sync* {
+    var numStr = number.toString();
+
+    int i = 0;
+    yield numStr[i++];
+    yield numStr[i++];
+    yield numStr[i++];
+    yield numStr[i++];
+    yield " ";
+    yield numStr[i++];
+    yield numStr[i++];
+    yield numStr[i++];
+    yield numStr[i++];
+    yield " ";
+    yield numStr[i++];
+    yield numStr[i++];
+    yield numStr[i++];
+    yield numStr[i++];
+    yield " ";
+    yield numStr[i++];
+    yield numStr[i++];
+    yield numStr[i++];
+    yield numStr[i++];
+  }
+
+  BankCard(
       {required this.id,
       required this.name,
       required this.userId,
@@ -22,7 +47,7 @@ class Cards {
       required this.expiryDate,
       required this.accountId});
 
-  Cards.fromjson(dynamic json)
+  BankCard.fromjson(dynamic json)
       : id = json['id'],
         name = json["full_name"],
         userId = json["user_id"],
@@ -30,6 +55,6 @@ class Cards {
         updatedAt = DateTime.parse(json["updated_at"]),
         createdAt = DateTime.parse(json["created_at"]),
         balance = json["balance"],
-        expiryDate = json["expiry_date"],
+        expiryDate = DateTime.parse(json["expiry_date"]),
         accountId = json["account_id"];
 }

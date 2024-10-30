@@ -8,7 +8,6 @@ import '../models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthProvider extends ChangeNotifier {
-  AuthProvider() {}
   User? user;
   bool _isUserLoggedInBefore = false; // if logged in previously
 
