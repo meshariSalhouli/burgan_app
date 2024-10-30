@@ -107,11 +107,12 @@ class AuthProvider extends ChangeNotifier {
     }
   }
 
-  void loogyui() async {
+  void logout() async {
     var prefs = await SharedPreferences.getInstance();
     await prefs.clear();
     user = null;
     dio.options.headers.remove(HttpHeaders.authorizationHeader);
+    notifyListeners();
   }
 }
 

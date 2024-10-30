@@ -303,7 +303,10 @@
 //     }
 //   }
 // }
+import 'package:burgan_app/main.dart';
+import 'package:burgan_app/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:provider/provider.dart';
 import 'package:burgan_app/translations.dart';
 import 'package:burgan_app/providers/language_provider.dart';
@@ -336,6 +339,16 @@ class _SettingsPageState extends State<SettingsPage> {
 
     return Scaffold(
       appBar: AppBar(
+        actions: [
+          IconButton(
+            onPressed: () {
+              Provider.of<AuthProvider>(context, listen: false).logout();
+              context.go("/");
+            },
+            icon: Icon(Icons.logout),
+            color: Colors.red,
+          )
+        ],
         title: Text(Translations.get('settingsTitle', selectedLanguage)),
       ),
       body: SingleChildScrollView(

@@ -35,7 +35,7 @@ class _MainPageState extends State<MainPage> {
   String _getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 12) {
-      return "${'goodMorning'.tr},";
+      return "${'goodMorning '.tr},";
     } else if (hour < 17) {
       return "${'goodAfternoon'.tr},";
     } else {
@@ -238,20 +238,20 @@ class _MainPageState extends State<MainPage> {
         title: Text("Burgan Wallet",
             style: TextStyle(
                 fontSize: 22, color: const Color.fromARGB(255, 68, 138, 255))),
-        actions: [
-          IconButton(
-              onPressed: () async {
-                var account = await AccountServices.list();
-                for (var a in account) {
-                  print(a);
-                }
+        // actions: [
+        //   IconButton(
+        //       onPressed: () async {
+        //         var account = await AccountServices.list();
+        //         for (var a in account) {
+        //           print(a);
+        //         }
 
-                var accountto =
-                    await AccountServices.transfer(7, 100, "1009358916");
-                print(accountto);
-              },
-              icon: Icon(Icons.import_contacts))
-        ],
+        //         var accountto =
+        //             await AccountServices.transfer(7, 100, "1009358916");
+        //         print(accountto);
+        //       },
+        //       icon: Icon(Icons.import_contacts))
+        // ],
       ),
       body: FutureBuilder(
           future: Future.wait([
@@ -285,12 +285,12 @@ class _MainPageState extends State<MainPage> {
                   ),
                   child: Column(
                     children: [
-                      ElevatedButton(
-                          onPressed: () {
-                            context.read<BankCardProvider>().get();
-                            print(context.read<AuthProvider>().user?.token);
-                          },
-                          child: Text("Load")),
+                      // ElevatedButton(
+                      //     onPressed: () {
+                      //       context.read<BankCardProvider>().get();
+                      //       print(context.read<AuthProvider>().user?.token);
+                      //     },
+                      //     child: Text("Load")),
                       // User Greeting Section
                       Padding(
                         padding: const EdgeInsets.all(16.0),
@@ -380,7 +380,13 @@ class _MainPageState extends State<MainPage> {
                                       ),
                                     ),
                                   ),
-                                  Text("Balance ${account.balance}"),
+                                  Text(
+                                    "Balance ${account.balance}",
+                                    style: TextStyle(
+                                        fontSize: 25,
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white),
+                                  ),
                                   Container(
                                     padding: EdgeInsets.only(top: 10),
                                     child: Row(
@@ -413,7 +419,7 @@ class _MainPageState extends State<MainPage> {
                                         ),
                                         ElevatedButton(
                                           onPressed: () {
-                                            _showTransactionDialog("Deposit");
+                                            _showDepositDialog(card.accountId);
                                           },
                                           child: Text("Deposit".tr,
                                               style: TextStyle(
@@ -436,12 +442,17 @@ class _MainPageState extends State<MainPage> {
                         endValue: context.watch<Accountprovider>().balance,
                         duration: Duration(seconds: 3),
                         isFloatingPoint: false,
-                        style: TextStyle(fontWeight: FontWeight.bold),
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 30,
+                            color: Colors.white),
                       ),
                       Container(
                         child: Text("balance".tr,
-                            style:
-                                TextStyle(fontSize: 18, color: Colors.white)),
+                            style: TextStyle(
+                                fontSize: 18,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold)),
                       ),
 
                       SizedBox(height: 10),
@@ -461,22 +472,32 @@ class _MainPageState extends State<MainPage> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 10),
-                      Divider(color: Colors.white),
-                      Expanded(
-                        child: ListView.builder(
-                          itemCount: transactions.length,
-                          itemBuilder: (context, index) {
-                            final transaction = transactions[index];
-                            return TransactionTile(
-                              bankName: transaction.bankName,
-                              amount: transaction.amount,
-                              icon: transaction.icon,
-                              transactionType: transaction.transactionType,
-                            );
-                          },
+                      Container(
+                        padding: EdgeInsets.all(5),
+                        child: Text(
+                          'Coming Soon'.tr,
+                          style: TextStyle(
+                              fontSize: 15,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white),
                         ),
                       ),
+                      // SizedBox(height: 10),
+                      // Divider(color: Colors.white),
+                      // Expanded(
+                      //   child: ListView.builder(
+                      //     itemCount: transactions.length,
+                      //     itemBuilder: (context, index) {
+                      //       final transaction = transactions[index];
+                      //       return TransactionTile(
+                      //         bankName: transaction.bankName,
+                      //         amount: transaction.amount,
+                      //         icon: transaction.icon,
+                      //         transactionType: transaction.transactionType,
+                      //       );
+                      //     },
+                      //   ),
+                      // ),
                     ],
                   ),
                 ),
@@ -528,6 +549,57 @@ class _MainPageState extends State<MainPage> {
                 await context
                     .read<Accountprovider>()
                     .withdraw(accountId, amount.toInt());
+
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _showDepositDialog(int accountId) {
+    amountController.clear();
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text("deposit Amount",
+              style: TextStyle(color: const Color.fromARGB(255, 68, 138, 255))),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: amountController,
+                keyboardType: TextInputType.number,
+                decoration: InputDecoration(
+                  hintText: "Enter amount in KWD",
+                  hintStyle:
+                      TextStyle(color: const Color.fromARGB(255, 68, 138, 255)),
+                ),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(
+              child: Text("Cancel",
+                  style: TextStyle(
+                      color: const Color.fromARGB(255, 68, 138, 255))),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+            TextButton(
+              child: Text("Confirm",
+                  style: TextStyle(
+                      color: const Color.fromARGB(255, 68, 138, 255))),
+              onPressed: () async {
+                double amount = double.tryParse(amountController.text) ?? 0.0;
+
+                await context
+                    .read<Accountprovider>()
+                    .deposit(accountId, amount.toInt());
 
                 Navigator.of(context).pop();
               },
