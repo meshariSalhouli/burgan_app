@@ -13,10 +13,10 @@
     <key>CFBundleIdentifier</key>
     <string>$(PRODUCT_BUNDLE_IDENTIFIER)</string>
     <key>NSAppTransportSecurity</key>
-	<dict>
-  	<key>NSAllowsArbitraryLoads</key>
-  	<true/>
-	</dict>
+    <dict>
+        <key>NSAllowsArbitraryLoads</key>
+        <true/>
+    </dict>
     <key>CFBundleInfoDictionaryVersion</key>
     <string>6.0</string>
     <key>CFBundleName</key>
@@ -67,6 +67,12 @@
     <!-- Face ID -->
     <key>NSFaceIDUsageDescription</key>
     <string>This app requires Face ID to authenticate</string>
+
+    <!-- Speech recognition and microphone use -->
+    <key>NSSpeechRecognitionUsageDescription</key>
+    <string>Describe why your app uses speech recognition.</string>
+    <key>NSMicrophoneUsageDescription</key>
+    <string>Describe why your app needs access to the microphone.</string>
 
 </dict>
 </plist>

@@ -26,6 +26,7 @@ dependencies:
   go_router: ^14.3.0
   animated_number: ^1.0.2
   webview_flutter: ^3.0.0
+  speech_to_text: ^7.0.0
 
 dev_dependencies:
   flutter_test:
