@@ -1,4 +1,5 @@
 import 'package:animated_number/animated_number.dart';
+import 'package:burgan_app/main.dart';
 import 'package:burgan_app/models/account.dart';
 import 'package:speech_to_text/speech_recognition_result.dart'; // Add this line if missing
 
@@ -23,8 +24,10 @@ class MainPage extends StatefulWidget {
   _MainPageState createState() => _MainPageState();
 }
 
+bool isProcessingText = false;
+
 class _MainPageState extends State<MainPage> {
-  double balance = 0.0; // Initial balance
+  double balance = 0.0;
   List<Transaction> transactions = []; // List to hold transaction history
   File? _profileImage; // Profile picture state
   final GlobalKey qrKey = GlobalKey(debugLabel: 'QR'); // QR Key for QR scanner
@@ -66,29 +69,48 @@ class _MainPageState extends State<MainPage> {
   }
 
   void _onSpeechResult(SpeechRecognitionResult result) {
-    setState(() {
-      _lastWords = result.recognizedWords;
-    });
-    // Check the recognized command and trigger actions
-    if (_lastWords.toLowerCase().contains("check balance")) {
-      _showBalancePopup();
-    } else if (_lastWords.toLowerCase().contains("transfer money")) {
-      _showTransactionDialog("Transfer");
+    if (isProcessingText) return;
+    isProcessingText = true;
+
+    try {
+      setState(() {
+        _lastWords = result.recognizedWords;
+      });
+      // Check the recognized command and trigger actions
+      if (_lastWords.toLowerCase().contains("check balance")) {
+        _showBalancePopup();
+      } else if (_lastWords.toLowerCase().contains("transfer")) {
+        _showTransactionDialog("Transfer");
+      } else if (_lastWords.toLowerCase().contains("deposit")) {
+        _showDepositDialog(context.read<Accountprovider>().accounts.first.id);
+      } else if (_lastWords.toLowerCase().contains("withdraw")) {
+        _showWithdrawDialog(context.read<Accountprovider>().accounts.first.id);
+      }
+    } finally {
+      isProcessingText = false;
     }
   }
 
+  BuildContext? previousExist = null;
   // Show balance popup when command is recognized
   void _showBalancePopup() {
+    if (previousExist != null) {
+      return;
+      //Navigator.of(previousExist!).pop();
+    }
     showDialog(
       context: context,
       builder: (context) {
+        previousExist = context;
         return AlertDialog(
           title: Text("Balance"),
-          content: Text("Your current balance is $balance KWD."),
+          content: Text(
+              "Your current balance is ${context.read<Accountprovider>().balance} KWD."),
           actions: [
             TextButton(
               child: Text("OK"),
               onPressed: () {
+                previousExist = null;
                 Navigator.of(context).pop();
               },
             ),
