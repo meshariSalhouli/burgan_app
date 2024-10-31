@@ -139,8 +139,7 @@ class MainScreenState extends State<MainScreen> {
               icon: Icon(Icons.local_offer), label: 'Offers'),
           BottomNavigationBarItem(
               icon: Icon(Icons.location_on), label: 'Branches'),
-          BottomNavigationBarItem(
-              icon: Icon(Icons.settings), label: 'Settings'),
+          BottomNavigationBarItem(icon: Icon(Icons.more_horiz), label: 'More'),
         ],
         currentIndex: selectedIndex,
         selectedItemColor: const Color.fromARGB(182, 18, 1, 255),

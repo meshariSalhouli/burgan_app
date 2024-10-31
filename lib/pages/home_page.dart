@@ -35,11 +35,11 @@ class _MainPageState extends State<MainPage> {
   String _getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 12) {
-      return "${'goodMorning '.tr},";
+      return "${'goodMorning'.tr},";
     } else if (hour < 17) {
       return "${'goodAfternoon'.tr},";
     } else {
-      return "${'Good Evening'.tr},";
+      return "${'GoodEvening'.tr},";
     }
   }
 
@@ -235,7 +235,7 @@ class _MainPageState extends State<MainPage> {
   Widget build(BuildContext _c) {
     return Scaffold(
       appBar: AppBar(
-        title: Text("Burgan Wallet",
+        title: Text("Burgan Wallet".tr,
             style: TextStyle(
                 fontSize: 22, color: const Color.fromARGB(255, 68, 138, 255))),
         // actions: [
@@ -381,7 +381,7 @@ class _MainPageState extends State<MainPage> {
                                     ),
                                   ),
                                   Text(
-                                    "Balance ${account.balance}",
+                                    "Balance".tr + "  ${account.balance}",
                                     style: TextStyle(
                                         fontSize: 25,
                                         fontWeight: FontWeight.bold,
@@ -448,7 +448,7 @@ class _MainPageState extends State<MainPage> {
                             color: Colors.white),
                       ),
                       Container(
-                        child: Text("balance".tr,
+                        child: Text("Balance".tr,
                             style: TextStyle(
                                 fontSize: 18,
                                 color: Colors.white,
