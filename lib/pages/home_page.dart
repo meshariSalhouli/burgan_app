@@ -1,5 +1,7 @@
 import 'package:animated_number/animated_number.dart';
 import 'package:burgan_app/models/account.dart';
+import 'package:speech_to_text/speech_recognition_result.dart'; // Add this line if missing
+
 import 'package:burgan_app/models/card.dart';
 import 'package:burgan_app/models/transaction.dart';
 import 'package:burgan_app/models/transactiontile.dart';
@@ -13,6 +15,8 @@ import 'package:provider/provider.dart';
 import 'dart:io';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'dart:convert'; // for decoding JSON from QR data
+import 'package:speech_to_text/speech_recognition_result.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
 class MainPage extends StatefulWidget {
   @override
@@ -30,6 +34,69 @@ class _MainPageState extends State<MainPage> {
   TextEditingController recipientNameController = TextEditingController();
 
   Account? _selectedAccount;
+
+  // Speech-to-text instance and state variables
+  late stt.SpeechToText _speechToText;
+  bool _speechEnabled = false;
+  String _lastWords = '';
+
+  // Initialize Speech-to-text
+  @override
+  void initState() {
+    super.initState();
+    context.read<Accountprovider>().get();
+    context.read<BankCardProvider>().get();
+    _speechToText = stt.SpeechToText();
+    _initSpeech();
+  }
+
+  void _initSpeech() async {
+    _speechEnabled = await _speechToText.initialize();
+    setState(() {});
+  }
+
+  void _startListening() async {
+    await _speechToText.listen(onResult: _onSpeechResult);
+    setState(() {});
+  }
+
+  void _stopListening() async {
+    await _speechToText.stop();
+    setState(() {});
+  }
+
+  void _onSpeechResult(SpeechRecognitionResult result) {
+    setState(() {
+      _lastWords = result.recognizedWords;
+    });
+    // Check the recognized command and trigger actions
+    if (_lastWords.toLowerCase().contains("check balance")) {
+      _showBalancePopup();
+    } else if (_lastWords.toLowerCase().contains("transfer money")) {
+      _showTransactionDialog("Transfer");
+    }
+  }
+
+  // Show balance popup when command is recognized
+  void _showBalancePopup() {
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: Text("Balance"),
+          content: Text("Your current balance is $balance KWD."),
+          actions: [
+            TextButton(
+              child: Text("OK"),
+              onPressed: () {
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
+    );
+  }
 
   // Method to get greeting based on the time of day
   String _getGreeting() {
@@ -234,6 +301,14 @@ class _MainPageState extends State<MainPage> {
   @override
   Widget build(BuildContext _c) {
     return Scaffold(
+      floatingActionButton: // Step 4: Add the button to start/stop speech recognition
+          FloatingActionButton(
+        onPressed:
+            _speechToText.isNotListening ? _startListening : _stopListening,
+        tooltip: 'Voice Command',
+        child:
+            Icon(_speechToText.isNotListening ? Icons.mic_none : Icons.mic_off),
+      ),
       appBar: AppBar(
         title: Text("Burgan Wallet".tr,
             style: TextStyle(
@@ -253,257 +328,243 @@ class _MainPageState extends State<MainPage> {
         //       icon: Icon(Icons.import_contacts))
         // ],
       ),
-      body: FutureBuilder(
-          future: Future.wait([
-            _c.read<Accountprovider>().get(),
-            _c.read<BankCardProvider>().get(),
-          ]),
-          builder: (_p, sp) {
-            if (sp.connectionState == ConnectionState.waiting) {
-              // DO BETTER LOADING
-              return CircularProgressIndicator();
-            }
+      body: Consumer<BankCardProvider>(builder: (context, cardProvider, _) {
+        var cards = context.watch<BankCardProvider>().cards;
 
-            return Consumer<BankCardProvider>(
-                builder: (context, cardProvider, _) {
-              var cards = context.watch<BankCardProvider>().cards;
-
-              return RefreshIndicator(
-                onRefresh: () => Future.wait(
-                  [
-                    _c.read<Accountprovider>().get(),
-                    _c.read<BankCardProvider>().get(),
-                  ],
-                ),
-                child: Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      colors: [Colors.blueAccent, Colors.lightBlueAccent],
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                    ),
+        return RefreshIndicator(
+          onRefresh: () => Future.wait(
+            [
+              _c.read<Accountprovider>().get(),
+              _c.read<BankCardProvider>().get(),
+            ],
+          ),
+          child: Column(
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [Colors.blueAccent, Colors.lightBlueAccent],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
                   ),
-                  child: Column(
-                    children: [
-                      // ElevatedButton(
-                      //     onPressed: () {
-                      //       context.read<BankCardProvider>().get();
-                      //       print(context.read<AuthProvider>().user?.token);
-                      //     },
-                      //     child: Text("Load")),
-                      // User Greeting Section
-                      Padding(
-                        padding: const EdgeInsets.all(16.0),
-                        child: Row(
-                          children: [
-                            GestureDetector(
-                              child: CircleAvatar(
-                                radius: 30,
-                                backgroundImage: _profileImage != null
-                                    ? NetworkImage(_profileImage!.path)
-                                    : AssetImage('assets/images/download.png')
-                                        as ImageProvider,
+                ),
+                child: Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Row(
+                        children: [
+                          GestureDetector(
+                            child: CircleAvatar(
+                              radius: 30,
+                              backgroundImage: _profileImage != null
+                                  ? NetworkImage(_profileImage!.path)
+                                  : AssetImage('assets/images/download.png')
+                                      as ImageProvider,
+                            ),
+                          ),
+                          SizedBox(width: 10),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                _getGreeting(),
+                                style: TextStyle(
+                                    fontSize: 18, color: Colors.white),
                               ),
-                            ),
-                            SizedBox(width: 10),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  _getGreeting(),
-                                  style: TextStyle(
-                                      fontSize: 18, color: Colors.white),
-                                ),
-                              ],
-                            ),
-                          ],
-                        ),
+                            ],
+                          ),
+                        ],
                       ),
-                      // Balance and Portfolio section
-                      SizedBox(
-                        height: 400,
-                        child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: cards.length,
-                            itemBuilder: (context, index) {
-                              var card = cards[index];
+                    ),
 
-                              var account = context
-                                  .read<Accountprovider>()
-                                  .accounts
-                                  .firstWhere((a) => a.id == card.accountId);
+                    // Balance and Portfolio section
+                    SizedBox(
+                      height: 400,
+                      child: ListView.builder(
+                          scrollDirection: Axis.horizontal,
+                          itemCount: cards.length,
+                          itemBuilder: (context, index) {
+                            var card = cards[index];
 
-                              return Column(
-                                children: [
-                                  Padding(
-                                    padding: const EdgeInsets.all(16.0),
-                                    child: SizedBox(
-                                      width: 360,
-                                      height: 226,
-                                      child: Stack(
-                                        fit: StackFit.expand,
-                                        children: <Widget>[
-                                          Image.asset(
-                                              'assets/images/debitcard.png'),
-                                          Positioned(
-                                            left: 50,
-                                            bottom: 80,
-                                            child: Container(
-                                              child: Text(card.formattedNumber,
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      color: Colors.white)),
-                                            ),
+                            var account = context
+                                .read<Accountprovider>()
+                                .accounts
+                                .firstWhere((a) => a.id == card.accountId);
+
+                            return Column(
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: SizedBox(
+                                    width: 360,
+                                    height: 226,
+                                    child: Stack(
+                                      fit: StackFit.expand,
+                                      children: <Widget>[
+                                        Image.asset(
+                                            'assets/images/debitcard.png'),
+                                        Positioned(
+                                          left: 50,
+                                          bottom: 80,
+                                          child: Container(
+                                            child: Text(card.formattedNumber,
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.white)),
                                           ),
-                                          Positioned(
-                                            left: 155,
-                                            bottom: 45,
-                                            child: Container(
-                                              child: Text(
-                                                  "${card.expiryDate.month}/${card.expiryDate.year}",
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      color: Colors.white)),
-                                            ),
-                                          ),
-                                          Positioned(
-                                            left: 50,
-                                            bottom: 20,
-                                            child: Container(
-                                              child: Text(card.name,
-                                                  style: TextStyle(
-                                                      fontSize: 18,
-                                                      color: Colors.white)),
-                                            ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                  Text(
-                                    "Balance".tr + "  ${account.balance}",
-                                    style: TextStyle(
-                                        fontSize: 25,
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white),
-                                  ),
-                                  Container(
-                                    padding: EdgeInsets.only(top: 10),
-                                    child: Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.spaceAround,
-                                      children: [
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            _showWithdrawDialog(card.accountId);
-                                          },
-                                          child: Text("Withdraw".tr,
-                                              style: TextStyle(
-                                                  color: const Color.fromARGB(
-                                                      255,
-                                                      68,
-                                                      138,
-                                                      255))), // White text
                                         ),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            _showTransactionDialog("Transfer");
-                                          },
-                                          child: Text("Transfer".tr,
-                                              style: TextStyle(
-                                                  color: const Color.fromARGB(
-                                                      255,
-                                                      68,
-                                                      138,
-                                                      255))), // White text
+                                        Positioned(
+                                          left: 155,
+                                          bottom: 45,
+                                          child: Container(
+                                            child: Text(
+                                                "${card.expiryDate.month}/${card.expiryDate.year}",
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.white)),
+                                          ),
                                         ),
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            _showDepositDialog(card.accountId);
-                                          },
-                                          child: Text("Deposit".tr,
-                                              style: TextStyle(
-                                                  color: const Color.fromARGB(
-                                                      255,
-                                                      68,
-                                                      138,
-                                                      255))), // White text
+                                        Positioned(
+                                          left: 50,
+                                          bottom: 20,
+                                          child: Container(
+                                            child: Text(card.name,
+                                                style: TextStyle(
+                                                    fontSize: 18,
+                                                    color: Colors.white)),
+                                          ),
                                         ),
                                       ],
                                     ),
                                   ),
-                                ],
-                              );
-                            }),
-                      ),
-                      AnimatedNumber(
-                        key: UniqueKey(),
-                        startValue: 0,
-                        endValue: context.watch<Accountprovider>().balance,
-                        duration: Duration(seconds: 3),
-                        isFloatingPoint: false,
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 30,
-                            color: Colors.white),
-                      ),
-                      Container(
-                        child: Text("Balance".tr,
-                            style: TextStyle(
-                                fontSize: 18,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold)),
-                      ),
+                                ),
+                                Text(
+                                  "Balance".tr + "  ${account.balance}",
+                                  style: TextStyle(
+                                      fontSize: 25,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white),
+                                ),
+                                Container(
+                                  padding: EdgeInsets.only(top: 10),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceAround,
+                                    children: [
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          _showWithdrawDialog(card.accountId);
+                                        },
+                                        child: Text("Withdraw".tr,
+                                            style: TextStyle(
+                                                color: const Color.fromARGB(
+                                                    255,
+                                                    68,
+                                                    138,
+                                                    255))), // White text
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          _showTransactionDialog("Transfer");
+                                        },
+                                        child: Text("Transfer".tr,
+                                            style: TextStyle(
+                                                color: const Color.fromARGB(
+                                                    255,
+                                                    68,
+                                                    138,
+                                                    255))), // White text
+                                      ),
+                                      ElevatedButton(
+                                        onPressed: () {
+                                          _showDepositDialog(card.accountId);
+                                        },
+                                        child: Text("Deposit".tr,
+                                            style: TextStyle(
+                                                color: const Color.fromARGB(
+                                                    255,
+                                                    68,
+                                                    138,
+                                                    255))), // White text
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            );
+                          }),
+                    ),
+                    AnimatedNumber(
+                      key: Key(
+                          context.read<Accountprovider>().balance.toString()),
+                      startValue: 0,
+                      endValue: context.watch<Accountprovider>().balance,
+                      duration: Duration(seconds: 3),
+                      isFloatingPoint: false,
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 30,
+                          color: Colors.white),
+                    ),
+                    Container(
+                      child: Text("Balance".tr,
+                          style: TextStyle(
+                              fontSize: 18,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold)),
+                    ),
 
-                      SizedBox(height: 10),
-                      // Padding(
-                      //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                      //   child: Align(
-                      //     alignment: Alignment.centerLeft,
-                      //     child: Container(
-                      //       padding: EdgeInsets.only(bottom: 30, top: 30),
-                      //       child: Text(
-                      //         'Transaction History'.tr,
-                      //         style: TextStyle(
-                      //             fontSize: 20,
-                      //             fontWeight: FontWeight.bold,
-                      //             color: Colors.white),
-                      //       ),
-                      //     ),
-                      //   ),
-                      // ),
-                      // Container(
-                      //   padding: EdgeInsets.all(5),
-                      //   child: Text(
-                      //     'Coming Soon'.tr,
-                      //     style: TextStyle(
-                      //         fontSize: 15,
-                      //         fontWeight: FontWeight.bold,
-                      //         color: Colors.white),
-                      //   ),
-                      // ),
-                      // SizedBox(height: 10),
-                      // Divider(color: Colors.white),
-                      // Expanded(
-                      //   child: ListView.builder(
-                      //     itemCount: transactions.length,
-                      //     itemBuilder: (context, index) {
-                      //       final transaction = transactions[index];
-                      //       return TransactionTile(
-                      //         bankName: transaction.bankName,
-                      //         amount: transaction.amount,
-                      //         icon: transaction.icon,
-                      //         transactionType: transaction.transactionType,
-                      //       );
-                      //     },
-                      //   ),
-                      // ),
-                    ],
-                  ),
+                    SizedBox(height: 10),
+                    // Padding(
+                    //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                    //   child: Align(
+                    //     alignment: Alignment.centerLeft,
+                    //     child: Container(
+                    //       padding: EdgeInsets.only(bottom: 30, top: 30),
+                    //       child: Text(
+                    //         'Transaction History'.tr,
+                    //         style: TextStyle(
+                    //             fontSize: 20,
+                    //             fontWeight: FontWeight.bold,
+                    //             color: Colors.white),
+                    //       ),
+                    //     ),
+                    //   ),
+                    // ),
+                    // Container(
+                    //   padding: EdgeInsets.all(5),
+                    //   child: Text(
+                    //     'Coming Soon'.tr,
+                    //     style: TextStyle(
+                    //         fontSize: 15,
+                    //         fontWeight: FontWeight.bold,
+                    //         color: Colors.white),
+                    //   ),
+                    // ),
+                    // SizedBox(height: 10),
+                    // Divider(color: Colors.white),
+                    // Expanded(
+                    //   child: ListView.builder(
+                    //     itemCount: transactions.length,
+                    //     itemBuilder: (context, index) {
+                    //       final transaction = transactions[index];
+                    //       return TransactionTile(
+                    //         bankName: transaction.bankName,
+                    //         amount: transaction.amount,
+                    //         icon: transaction.icon,
+                    //         transactionType: transaction.transactionType,
+                    //       );
+                    //     },
+                    //   ),
+                    // ),
+                  ],
                 ),
-              );
-            });
-          }),
+              ),
+            ],
+          ),
+        );
+      }),
     );
   }
 
