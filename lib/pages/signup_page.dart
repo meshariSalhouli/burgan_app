@@ -1,4 +1,6 @@
+import 'package:burgan_app/providers/accounts_provider.dart';
 import 'package:burgan_app/providers/auth_provider.dart';
+import 'package:burgan_app/providers/cards_provider.dart';
 import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
@@ -45,6 +47,12 @@ class SignupPage extends StatelessWidget {
 
                   var user = context.read<AuthProvider>().user;
                   print("You are logged in as ${user!.username}");
+
+                  (await context.read<Accountprovider>().get());
+                  var acc =
+                      context.read<Accountprovider>().accounts.first.number;
+
+                  await context.read<BankCardProvider>().addCard(acc);
                   context.go('/mainscreen');
                 } on DioException catch (e) {
                   if (e.response == null) return;

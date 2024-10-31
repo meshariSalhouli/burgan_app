@@ -9,4 +9,10 @@ class BankCardProvider extends ChangeNotifier {
     cards = await CardServices.list();
     notifyListeners();
   }
+
+  Future<void> addCard(String number) async {
+    BankCard newCard = await CardServices.addCard(number);
+    cards.insert(0, newCard);
+    notifyListeners();
+  }
 }

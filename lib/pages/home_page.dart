@@ -99,14 +99,14 @@ class _MainPageState extends State<MainPage> {
   }
 
   // Method to get greeting based on the time of day
-  String _getGreeting() {
+  String _getGreeting(String name) {
     final hour = DateTime.now().hour;
     if (hour < 12) {
-      return "${'goodMorning'.tr},";
+      return "${'goodMorning'.tr}, $name";
     } else if (hour < 17) {
-      return "${'goodAfternoon'.tr},";
+      return "${'Good Afternoon'.tr}$name,";
     } else {
-      return "${'GoodEvening'.tr},";
+      return "${'GoodEvening'.tr}, $name";
     }
   }
 
@@ -201,95 +201,95 @@ class _MainPageState extends State<MainPage> {
     qrController?.dispose();
   }
 
-// Dialog to input transaction amounts with QR scan option
-  void _showTransactionDialog(String type) {
-    bool isTransfer = type == "Transfer";
+// // Dialog to input transaction amounts with QR scan option
+//   void _showTransactionDialog(String type) {
+//     bool isTransfer = type == "Transfer";
 
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text("$type Amount",
-              style: TextStyle(color: const Color.fromARGB(255, 68, 138, 255))),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: amountController,
-                keyboardType: TextInputType.number,
-                decoration: InputDecoration(
-                  hintText: "Enter amount in KWD",
-                  hintStyle:
-                      TextStyle(color: const Color.fromARGB(255, 68, 138, 255)),
-                ),
-              ),
-              if (isTransfer) ...[
-                SizedBox(height: 10),
-                TextField(
-                  controller: ibanController,
-                  decoration: InputDecoration(
-                    hintText: "Enter IBAN",
-                    hintStyle: TextStyle(
-                        color: const Color.fromARGB(255, 68, 138, 255)),
-                  ),
-                ),
-                SizedBox(height: 10),
-                TextField(
-                  controller: recipientNameController,
-                  decoration: InputDecoration(
-                    hintText: "Recipient's name",
-                    hintStyle: TextStyle(
-                        color: const Color.fromARGB(255, 0, 118, 202)),
-                  ),
-                ),
-                SizedBox(height: 10),
-                ElevatedButton(
-                  onPressed: _scanQRCode,
-                  child: Text("Scan QR Code"),
-                ),
-              ],
-            ],
-          ),
-          actions: [
-            TextButton(
-              child: Text("Cancel",
-                  style: TextStyle(
-                      color: const Color.fromARGB(255, 68, 138, 255))),
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-            ),
-            TextButton(
-              child: Text("Confirm",
-                  style: TextStyle(
-                      color: const Color.fromARGB(255, 68, 138, 255))),
-              onPressed: () {
-                double amount = double.tryParse(amountController.text) ?? 0.0;
-                String iban = ibanController.text;
-                String recipientName = recipientNameController.text;
+//     showDialog(
+//       context: context,
+//       builder: (BuildContext context) {
+//         return AlertDialog(
+//           title: Text("$type Amount",
+//               style: TextStyle(color: const Color.fromARGB(255, 68, 138, 255))),
+//           content: Column(
+//             mainAxisSize: MainAxisSize.min,
+//             children: [
+//               TextField(
+//                 controller: amountController,
+//                 keyboardType: TextInputType.number,
+//                 decoration: InputDecoration(
+//                   hintText: "Enter amount in KWD",
+//                   hintStyle:
+//                       TextStyle(color: const Color.fromARGB(255, 68, 138, 255)),
+//                 ),
+//               ),
+//               if (isTransfer) ...[
+//                 SizedBox(height: 10),
+//                 TextField(
+//                   controller: ibanController,
+//                   decoration: InputDecoration(
+//                     hintText: "Enter IBAN",
+//                     hintStyle: TextStyle(
+//                         color: const Color.fromARGB(255, 68, 138, 255)),
+//                   ),
+//                 ),
+//                 SizedBox(height: 10),
+//                 TextField(
+//                   controller: recipientNameController,
+//                   decoration: InputDecoration(
+//                     hintText: "Recipient's name",
+//                     hintStyle: TextStyle(
+//                         color: const Color.fromARGB(255, 0, 118, 202)),
+//                   ),
+//                 ),
+//                 SizedBox(height: 10),
+//                 ElevatedButton(
+//                   onPressed: _scanQRCode,
+//                   child: Text("Scan QR Code"),
+//                 ),
+//               ],
+//             ],
+//           ),
+//           actions: [
+//             TextButton(
+//               child: Text("Cancel",
+//                   style: TextStyle(
+//                       color: const Color.fromARGB(255, 68, 138, 255))),
+//               onPressed: () {
+//                 Navigator.of(context).pop();
+//               },
+//             ),
+//             TextButton(
+//               child: Text("Confirm",
+//                   style: TextStyle(
+//                       color: const Color.fromARGB(255, 68, 138, 255))),
+//               onPressed: () {
+//                 double amount = double.tryParse(amountController.text) ?? 0.0;
+//                 String iban = ibanController.text;
+//                 String recipientName = recipientNameController.text;
 
-                if (amount > 0) {
-                  if (type == "Withdraw") {
-                    // context.read<Accountprovider>()
-                  } else if (type == "Deposit") {
-                    _deposit(amount);
-                  } else if (type == "Transfer") {
-                    if (iban.isNotEmpty && recipientName.isNotEmpty) {
-                      _transfer(amount, iban, recipientName);
-                    } else {
-                      _showSnackBar(
-                          "Please fill in all fields for the transfer.");
-                    }
-                  }
-                }
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
-      },
-    );
-  }
+//                 if (amount > 0) {
+//                   if (type == "Withdraw") {
+//                     // context.read<Accountprovider>()
+//                   } else if (type == "Deposit") {
+//                     _deposit(amount);
+//                   } else if (type == "Transfer") {
+//                     if (iban.isNotEmpty && recipientName.isNotEmpty) {
+//                       _transfer(amount, iban, recipientName);
+//                     } else {
+//                       _showSnackBar(
+//                           "Please fill in all fields for the transfer.");
+//                     }
+//                   }
+//                 }
+//                 Navigator.of(context).pop();
+//               },
+//             ),
+//           ],
+//         );
+//       },
+//     );
+//   }
 
   @override
   void dispose() {
@@ -368,7 +368,11 @@ class _MainPageState extends State<MainPage> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                _getGreeting(),
+                                _getGreeting(context
+                                    .read<Accountprovider>()
+                                    .accounts
+                                    .first
+                                    .name),
                                 style: TextStyle(
                                     fontSize: 18, color: Colors.white),
                               ),
@@ -626,7 +630,7 @@ class _MainPageState extends State<MainPage> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("deposit Amount",
+          title: Text("Deposit Amount",
               style: TextStyle(color: const Color.fromARGB(255, 68, 138, 255))),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -671,16 +675,16 @@ class _MainPageState extends State<MainPage> {
     );
   }
 
-  // Dialog to input transaction amounts with QR scan option
   void _showTransferDialog(int accountId, List<Account> accounts) {
     setState(() {
       _selectedAccount = accounts.first;
+      amountController.clear();
     });
     showDialog(
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: Text("Withrdaw Amount",
+          title: Text("Transfar Amount",
               style: TextStyle(color: const Color.fromARGB(255, 68, 138, 255))),
           content: Column(
             mainAxisSize: MainAxisSize.min,
@@ -707,7 +711,11 @@ class _MainPageState extends State<MainPage> {
                     setState(() {
                       _selectedAccount = v;
                     });
-                  })
+                  }),
+              ElevatedButton(
+                onPressed: _scanQRCode,
+                child: Text("Scan QR Code"),
+              ),
             ],
           ),
           actions: [
@@ -725,8 +733,6 @@ class _MainPageState extends State<MainPage> {
                       color: const Color.fromARGB(255, 68, 138, 255))),
               onPressed: () {
                 double amount = double.tryParse(amountController.text) ?? 0.0;
-                String iban = ibanController.text;
-                String recipientName = recipientNameController.text;
 
                 context
                     .read<Accountprovider>()
