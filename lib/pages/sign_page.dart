@@ -24,7 +24,7 @@ class SignPage extends StatelessWidget {
       body: Container(
         decoration: const BoxDecoration(
           gradient: LinearGradient(
-            colors: [Colors.blueAccent, Colors.lightBlueAccent],
+            colors: [Colors.blueAccent, Colors.indigo],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -40,8 +40,10 @@ class SignPage extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
-                    color: Colors.white,
+                    color: const Color.fromARGB(255, 255, 255, 255),
                     shadows: [
+                      /*
+                      */
                       Shadow(
                         color: Colors.black.withOpacity(0.5),
                         offset: Offset(2, 2),
@@ -83,7 +85,7 @@ class SignPage extends StatelessWidget {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            backgroundColor: Colors.blueAccent,
+                            backgroundColor: Colors.indigo,
                           ),
                           onPressed: () {
                             context
@@ -96,8 +98,8 @@ class SignPage extends StatelessWidget {
                         width: double.infinity,
                         height: 60,
                         child: ElevatedButton.icon(
-                          icon:
-                              Icon(Icons.app_registration, color: Colors.white),
+                          icon: Icon(Icons.app_registration_sharp,
+                              color: Colors.white),
                           label: const Text(
                             "Sign Up",
                             style: TextStyle(fontSize: 22, color: Colors.white),
@@ -106,11 +108,11 @@ class SignPage extends StatelessWidget {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            backgroundColor: Colors.blueAccent,
+                            backgroundColor: Colors.indigo,
                           ),
                           onPressed: () {
                             context
-                                .go('/signup'); // Use GoRouter for navigation
+                                .push('/signup'); // Use GoRouter for navigation
                           },
                         ),
                       ),
