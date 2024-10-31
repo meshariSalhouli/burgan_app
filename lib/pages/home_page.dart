@@ -79,8 +79,8 @@ class _MainPageState extends State<MainPage> {
       // Check the recognized command and trigger actions
       if (_lastWords.toLowerCase().contains("check balance")) {
         _showBalancePopup();
-      } else if (_lastWords.toLowerCase().contains("transfer")) {
-        _showTransactionDialog("Transfer");
+        // } else if (_lastWords.toLowerCase().contains("transfer")) {
+        //   _showTransferDialog(context.read<Accountprovider>().accounts.first.id);
       } else if (_lastWords.toLowerCase().contains("deposit")) {
         _showDepositDialog(context.read<Accountprovider>().accounts.first.id);
       } else if (_lastWords.toLowerCase().contains("withdraw")) {
@@ -132,59 +132,6 @@ class _MainPageState extends State<MainPage> {
     }
   }
 
-  // Method to handle Withdraw
-  void _withdraw(double amount) {
-    if (balance >= amount) {
-      setState(() {
-        balance -= amount;
-        transactions.insert(
-          0,
-          Transaction(
-              bankName: "${'you'.tr}",
-              amount: "-${amount.toStringAsFixed(2).tr} ${'KWD'}",
-              icon: Icons.money_off,
-              transactionType: "${"Withdraw".tr}"),
-        );
-      });
-    } else {
-      _showSnackBar("Insufficient balance for withdrawal");
-    }
-  }
-
-// Method to handle Deposit
-  void _deposit(double amount) {
-    setState(() {
-      balance += amount;
-      transactions.insert(
-        0,
-        Transaction(
-            bankName: "You",
-            amount: "+${amount.toStringAsFixed(2)} KWD",
-            icon: Icons.attach_money,
-            transactionType: "Deposit"),
-      );
-    });
-  }
-
-// Method to handle Transfer
-  void _transfer(double amount, String iban, String recipientName) {
-    if (balance >= amount) {
-      setState(() {
-        balance -= amount;
-        transactions.insert(
-          0,
-          Transaction(
-              bankName: "Transfer to $recipientName\nIBAN: $iban",
-              amount: "-${amount.toStringAsFixed(2)} KWD",
-              icon: Icons.transfer_within_a_station,
-              transactionType: "Transfer"),
-        );
-      });
-    } else {
-      _showSnackBar("Insufficient balance for transfer");
-    }
-  }
-
 // SnackBar for insufficient funds
   void _showSnackBar(String message) {
     final snackBar = SnackBar(content: Text(message));
@@ -223,96 +170,8 @@ class _MainPageState extends State<MainPage> {
     qrController?.dispose();
   }
 
-// // Dialog to input transaction amounts with QR scan option
-//   void _showTransactionDialog(String type) {
-//     bool isTransfer = type == "Transfer";
-
-//     showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           title: Text("$type Amount",
-//               style: TextStyle(color: const Color.fromARGB(255, 68, 138, 255))),
-//           content: Column(
-//             mainAxisSize: MainAxisSize.min,
-//             children: [
-//               TextField(
-//                 controller: amountController,
-//                 keyboardType: TextInputType.number,
-//                 decoration: InputDecoration(
-//                   hintText: "Enter amount in KWD",
-//                   hintStyle:
-//                       TextStyle(color: const Color.fromARGB(255, 68, 138, 255)),
-//                 ),
-//               ),
-//               if (isTransfer) ...[
-//                 SizedBox(height: 10),
-//                 TextField(
-//                   controller: ibanController,
-//                   decoration: InputDecoration(
-//                     hintText: "Enter IBAN",
-//                     hintStyle: TextStyle(
-//                         color: const Color.fromARGB(255, 68, 138, 255)),
-//                   ),
-//                 ),
-//                 SizedBox(height: 10),
-//                 TextField(
-//                   controller: recipientNameController,
-//                   decoration: InputDecoration(
-//                     hintText: "Recipient's name",
-//                     hintStyle: TextStyle(
-//                         color: const Color.fromARGB(255, 0, 118, 202)),
-//                   ),
-//                 ),
-//                 SizedBox(height: 10),
-//                 ElevatedButton(
-//                   onPressed: _scanQRCode,
-//                   child: Text("Scan QR Code"),
-//                 ),
-//               ],
-//             ],
-//           ),
-//           actions: [
-//             TextButton(
-//               child: Text("Cancel",
-//                   style: TextStyle(
-//                       color: const Color.fromARGB(255, 68, 138, 255))),
-//               onPressed: () {
-//                 Navigator.of(context).pop();
-//               },
-//             ),
-//             TextButton(
-//               child: Text("Confirm",
-//                   style: TextStyle(
-//                       color: const Color.fromARGB(255, 68, 138, 255))),
-//               onPressed: () {
-//                 double amount = double.tryParse(amountController.text) ?? 0.0;
-//                 String iban = ibanController.text;
-//                 String recipientName = recipientNameController.text;
-
-//                 if (amount > 0) {
-//                   if (type == "Withdraw") {
-//                     // context.read<Accountprovider>()
-//                   } else if (type == "Deposit") {
-//                     _deposit(amount);
-//                   } else if (type == "Transfer") {
-//                     if (iban.isNotEmpty && recipientName.isNotEmpty) {
-//                       _transfer(amount, iban, recipientName);
-//                     } else {
-//                       _showSnackBar(
-//                           "Please fill in all fields for the transfer.");
-//                     }
-//                   }
-//                 }
-//                 Navigator.of(context).pop();
-//               },
-//             ),
-//           ],
-//         );
-//       },
-//     );
-//   }
-
+//
+//
   @override
   void dispose() {
     qrController?.dispose();
@@ -492,7 +351,11 @@ class _MainPageState extends State<MainPage> {
                                       ),
                                       ElevatedButton(
                                         onPressed: () {
-                                          _showTransactionDialog("Transfer");
+                                          _showTransferDialog(
+                                              card.accountId,
+                                              context
+                                                  .read<Accountprovider>()
+                                                  .accounts);
                                         },
                                         child: Text("Transfer".tr,
                                             style: TextStyle(
@@ -542,48 +405,6 @@ class _MainPageState extends State<MainPage> {
                     ),
 
                     SizedBox(height: 10),
-                    // Padding(
-                    //   padding: const EdgeInsets.symmetric(horizontal: 16.0),
-                    //   child: Align(
-                    //     alignment: Alignment.centerLeft,
-                    //     child: Container(
-                    //       padding: EdgeInsets.only(bottom: 30, top: 30),
-                    //       child: Text(
-                    //         'Transaction History'.tr,
-                    //         style: TextStyle(
-                    //             fontSize: 20,
-                    //             fontWeight: FontWeight.bold,
-                    //             color: Colors.white),
-                    //       ),
-                    //     ),
-                    //   ),
-                    // ),
-                    // Container(
-                    //   padding: EdgeInsets.all(5),
-                    //   child: Text(
-                    //     'Coming Soon'.tr,
-                    //     style: TextStyle(
-                    //         fontSize: 15,
-                    //         fontWeight: FontWeight.bold,
-                    //         color: Colors.white),
-                    //   ),
-                    // ),
-                    // SizedBox(height: 10),
-                    // Divider(color: Colors.white),
-                    // Expanded(
-                    //   child: ListView.builder(
-                    //     itemCount: transactions.length,
-                    //     itemBuilder: (context, index) {
-                    //       final transaction = transactions[index];
-                    //       return TransactionTile(
-                    //         bankName: transaction.bankName,
-                    //         amount: transaction.amount,
-                    //         icon: transaction.icon,
-                    //         transactionType: transaction.transactionType,
-                    //       );
-                    //     },
-                    //   ),
-                    // ),
                   ],
                 ),
               ),
